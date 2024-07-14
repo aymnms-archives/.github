@@ -10,7 +10,7 @@
 <h3 align="center">aymnms-archives</h3>
 
   <p align="center">
-    This repository is used to store and archive unused repositories.
+    This organisation is used to store and archive unused repositories.
 </div>
 
 
