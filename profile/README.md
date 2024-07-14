@@ -11,5 +11,5 @@
 
   <p align="center">
     This organisation is used to store and archive unused repositories.<br>
-    To import an existing repository, you should use [this repository](https://github.com/aymnms-archives/.github)
+    To import an existing repository, you should use <a href="https://github.com/aymnms-archives/.github">this repository</a>
 </div>
