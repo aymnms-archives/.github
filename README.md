@@ -1,51 +1,79 @@
 <a id="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
   <a href="https://github.com/aymnms/aymnms-archives">
     <img src="https://avatars.githubusercontent.com/u/175542870?s=500&v=4" alt="Logo" width="200" height="200">
   </a>
 
-<h3 align="center">aymnms-archives</h3>
+  <h3 align="center">aymnms-archives</h3>
 
   <p align="center">
-    This repository helped to upload your project into this organisation.
+    A simple CLI tool to quickly push old or archived projects to the <strong>aymnms-archives</strong> GitHub organization.
+  </p>
 </div>
 
+---
 
+## 📚 Table of Contents
 
-<!-- TABLE OF CONTENTS -->
-<summary>Table of Contents</summary>
-<ol>
-    <li><a href="#usage">Usage</a></li>
-</ol>
+- [📚 Table of Contents](#-table-of-contents)
+- [📝 Overview](#-overview)
+- [⚙️ Prerequisites](#️-prerequisites)
+- [🚀 Usage](#-usage)
+- [📄 License](#-license)
 
+---
 
+## 📝 Overview
 
-## Usage
+This script automates the process of publishing one or more local projects to the `aymnms-archives` GitHub organization.
 
-You could use this script to upload your project into this organisation.
-But, if you used this script, you need before to download locally yours projets.
+It can:
+- Automatically create the repository in your organization via the GitHub CLI
+- Set the correct remote
+- Push the current branch (e.g. `main` or `master`) to GitHub
+- (Optionally) Delete the local folder after push
 
-Then:
-- download the script
-- move it to the same parent folder
-- give the right to execute it with this command: `chmod +x push.sh`.
-- execute the script, adding all the folder names containing the projects you wish to put online. Like this: `./push.sh firstfolder secondfolder ...`.
+This tool is ideal for publishing archived or old projects in batch.
+
+---
+
+## ⚙️ Prerequisites
+
+Make sure you have the following tools installed:
+
+- [Git](https://git-scm.com/)
+- [GitHub CLI (`gh`)](https://cli.github.com/)
+- SSH access to your GitHub account (or HTTPS configured)
+- A valid GitHub session (`gh auth login`)
+
+---
+
+## 🚀 Usage
+
+1. **Download or clone this repository**
+2. **Place your project folders next to `push.sh`**
+3. **Make the script executable**:
+   ```bash
+   chmod +x push.sh
+   ```
+
+4. **Run the script with your project folder names**:
+   ```bash
+   ./push.sh my-project another-project
+   ```
+
+5. ✅ The script will:
+   - Navigate into each folder
+   - Create a new repository under `aymnms-archives` (private by default)
+   - Push the current branch to GitHub
+   - Show a success message for each
+
+---
+
+## 📄 License
+
+This project does not currently include a license. You may add one if needed (e.g. MIT, GPL, etc).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/aymnms/aymnms-archives.svg?style=for-the-badge
-[contributors-url]: https://github.com/aymnms/aymnms-archives/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/aymnms/aymnms-archives.svg?style=for-the-badge
-[forks-url]: https://github.com/aymnms/aymnms-archives/network/members
-[stars-shield]: https://img.shields.io/github/stars/aymnms/aymnms-archives.svg?style=for-the-badge
-[stars-url]: https://github.com/aymnms/aymnms-archives/stargazers
-[issues-shield]: https://img.shields.io/github/issues/aymnms/aymnms-archives.svg?style=for-the-badge
-[issues-url]: https://github.com/aymnms/aymnms-archives/issues
-[product-screenshot]: images/screenshot.png
