@@ -1,22 +1,35 @@
-BLUE='\033[0;34m' # Blue
-GREEN='\033[0;32m' # Green
-RED='\033[0;31m' # Red
-DARK_GRAY='\033[1;30m' # DARK_GRAY
-NC='\033[0m' # No Color
+#!/bin/bash
 
-for project_name in $@
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+DARK_GRAY='\033[1;30m'
+NC='\033[0m'
+
+for project_name in "$@"
 do
-    echo "${BLUE}push.sh > start $project_name${DARK_GRAY}"
-    cd $project_name
+    echo -e "${BLUE}push.sh > start $project_name${DARK_GRAY}"
+
+    cd "$project_name" || { echo -e "${RED}push.sh > Failed to enter $project_name${NC}"; continue; }
+
+    # Create the GitHub repo under the organization
+    echo -e "${DARK_GRAY}Creating repository on GitHub...${NC}"
+    gh repo create aymnms-archives/"$project_name" --public --confirm --source=. --remote=origin
+
+    # Update origin branch
     git remote remove origin
     git remote add origin git@github.com:aymnms-archives/$project_name.git
-    if [ "git push -u origin main" ] ; then
-        git push -u origin master
-    fi
-    echo "${GREEN}push.sh > $project has been pushed on aymnms-archives${DARK_GRAY}"
 
-    # this code delete locally your repository (not remotly)
-    # cd ..
-    # rm -rf $project_name
-    # echo "${BLUE}push.sh > $project_name local folder has been removed${DARK_GRAY}"
-fi
+    # Push the code
+    current_branch=$(git symbolic-ref --short HEAD)
+    echo -e "${DARK_GRAY}Pushing branch: $current_branch${NC}"
+    git push -u origin "$current_branch"
+
+    echo -e "${GREEN}push.sh > $project_name has been pushed on aymnms-archives${DARK_GRAY}"
+
+    cd ..
+
+    # Optional: delete local repo
+    rm -rf "$project_name"
+    echo -e "${BLUE}push.sh > $project_name local folder has been removed${DARK_GRAY}"
+done
