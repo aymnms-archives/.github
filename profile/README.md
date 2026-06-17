@@ -1,6 +1,5 @@
 <a id="readme-top"></a>
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/aymnms/aymnms-archives">
@@ -11,5 +10,6 @@
 
   <p align="center">
     This organisation is used to store and archive unused repositories.<br>
-    To import an existing repository, you should use <a href="https://github.com/aymnms-archives/.github">this repository</a>
+    To mirror a repository here, use <a href="https://github.com/aymnms/github-archiver">github-archiver</a>.
+  </p>
 </div>
