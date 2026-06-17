@@ -5,7 +5,6 @@ set -euo pipefail
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m'
@@ -41,7 +40,6 @@ prompt() {
         read -rp "  > " value
     fi
 
-    # Strip surrounding single or double quotes typed by the user
     value="${value#\'}" ; value="${value%\'}"
     value="${value#\"}" ; value="${value%\"}"
 
@@ -56,7 +54,7 @@ setup() {
 
     gh_token=$(prompt \
         "GitHub Personal Access Token" \
-        "scopes requis : repo, delete_repo" \
+        "scope requis : repo" \
         "true")
 
     default_user=$(git config --global user.name 2>/dev/null || true)
@@ -65,17 +63,9 @@ setup() {
         "laisser vide pour ${default_user:-votre user git local}")
     source_user="${source_input:-$default_user}"
 
-    ssh_input=$(prompt \
-        "Chemin vers vos clés SSH" \
-        "laisser vide pour ~/.ssh")
-
-    ssh_dir="${ssh_input:-$HOME/.ssh}"
-    ssh_dir="${ssh_dir/#\~/$HOME}"
-
     cat > "$ENV_PATH" <<EOF
 GH_TOKEN="$gh_token"
 SOURCE_GITHUB_USER="$source_user"
-SSH_DIR="$ssh_dir"
 EOF
 
     echo ""
@@ -83,22 +73,7 @@ EOF
     echo ""
 }
 
-build() {
-    echo -e "${BLUE}Building image Docker...${NC}"
-    docker compose --project-directory "$SCRIPT_DIR" build --quiet
-    echo -e "${GREEN}Image prête.${NC}"
-    echo ""
-}
-
-run_push() {
-    echo -e "${BLUE}Lancement pour :${NC} $*"
-    echo ""
-    docker compose --project-directory "$SCRIPT_DIR" run --rm push "$@"
-    echo ""
-    echo -e "${GREEN}Terminé. Le container a été supprimé.${NC}"
-}
-
-# ── Parse args ──────────────────────────────────────────────────────────────
+# ── Parse args ───────────────────────────────────────────────────────────────
 
 FORCE_SETUP=false
 PROJECTS=()
@@ -125,15 +100,12 @@ if [[ "$FORCE_SETUP" == true || ! -f "$ENV_PATH" ]]; then
     setup
 fi
 
-# Charger le .env
-set -o allexport
-# shellcheck source=.env
-source "$ENV_PATH"
-set +o allexport
-
-# ── Build + Run ──────────────────────────────────────────────────────────────
+# ── Run ──────────────────────────────────────────────────────────────────────
 
 if [[ ${#PROJECTS[@]} -gt 0 ]]; then
-    build
-    run_push "${PROJECTS[@]}"
+    set -o allexport
+    source "$ENV_PATH"
+    set +o allexport
+
+    "$SCRIPT_DIR/push.sh" "${PROJECTS[@]}"
 fi

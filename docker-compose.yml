@@ -1,8 +1,0 @@
-services:
-  push:
-    build: .
-    volumes:
-      - ${SSH_DIR:-~/.ssh}:/root/.ssh:ro
-    environment:
-      - GH_TOKEN=${GH_TOKEN}
-      - SOURCE_GITHUB_USER=${SOURCE_GITHUB_USER}
