@@ -19,24 +19,20 @@ do
 
     cd "$project_name" || { echo -e "${RED}push.sh > Failed to enter $project_name${NC}"; continue; }
 
-    # Create the GitHub repo under the organization
-    echo -e "${DARK_GRAY}Creating repository on GitHub...${NC}"
-    gh repo create aymnms-archives/"$project_name" --public --confirm --source=. --remote=origin
+    echo -e "${DARK_GRAY}Creating aymnms-archives/${project_name}...${NC}"
+    gh repo create aymnms-archives/"$project_name" --public
 
-    # Update origin branch
     git remote remove origin
-    git remote add origin git@github.com:aymnms-archives/$project_name.git
+    git remote add origin git@github.com:aymnms-archives/"$project_name".git
 
     # Push the code
     current_branch=$(git symbolic-ref --short HEAD)
     echo -e "${DARK_GRAY}Pushing branch: $current_branch${NC}"
     git push -u origin "$current_branch"
 
-    echo -e "${GREEN}push.sh > $project_name has been pushed on aymnms-archives${DARK_GRAY}"
+    echo -e "${GREEN}push.sh > $project_name pushed to aymnms-archives${NC}"
 
     cd ..
-
-    # Optional: delete local repo
     rm -rf "$project_name"
-    echo -e "${BLUE}push.sh > $project_name local folder has been removed${DARK_GRAY}"
+    echo -e "${BLUE}push.sh > $project_name local folder removed${NC}"
 done
