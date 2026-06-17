@@ -13,6 +13,19 @@ ENV_FILE=".env"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_PATH="$SCRIPT_DIR/$ENV_FILE"
 
+# ── Dependency check ─────────────────────────────────────────────────────────
+
+missing=()
+for cmd in git curl ssh; do
+    command -v "$cmd" &>/dev/null || missing+=("$cmd")
+done
+
+if [[ ${#missing[@]} -gt 0 ]]; then
+    echo -e "${RED}Dépendances manquantes : ${missing[*]}${NC}"
+    echo -e "${DIM}Installe-les puis relance le script.${NC}"
+    exit 1
+fi
+
 usage() {
     echo -e "${BOLD}Usage:${NC}"
     echo -e "  ${GREEN}./run.sh${NC} ${DIM}<project1> [project2...]${NC}   Pusher des projets"
