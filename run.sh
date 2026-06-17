@@ -63,9 +63,14 @@ setup() {
         "laisser vide pour ${default_user:-votre user git local}")
     source_user="${source_input:-$default_user}"
 
+    dest_org=$(prompt \
+        "Organisation ou compte GitHub de destination" \
+        "où archiver les repos")
+
     cat > "$ENV_PATH" <<EOF
 GH_TOKEN="$gh_token"
 SOURCE_GITHUB_USER="$source_user"
+DEST_GITHUB_ORG="$dest_org"
 EOF
 
     echo ""

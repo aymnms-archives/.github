@@ -8,9 +8,20 @@ RED='\033[0;31m'
 DARK_GRAY='\033[1;30m'
 NC='\033[0m'
 
-SOURCE_USER="${SOURCE_GITHUB_USER:-aymnms}"
-DEST_ORG="aymnms-archives"
+SOURCE_USER="${SOURCE_GITHUB_USER}"
+DEST_ORG="${DEST_GITHUB_ORG}"
 API="https://api.github.com"
+
+# Detect whether destination is an org or a personal account (one call, before the loop)
+dest_type=$(curl -s \
+    -H "Authorization: Bearer ${GH_TOKEN}" \
+    "${API}/users/${DEST_ORG}" \
+    | grep '"type"' | head -1 | sed 's/.*"type": *"\([^"]*\)".*/\1/')
+if [[ "$dest_type" == "Organization" ]]; then
+    CREATE_ENDPOINT="${API}/orgs/${DEST_ORG}/repos"
+else
+    CREATE_ENDPOINT="${API}/user/repos"
+fi
 
 for project_name in "$@"
 do
@@ -51,7 +62,7 @@ do
             curl -s -X POST \
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
-                "${API}/orgs/${DEST_ORG}/repos" \
+                "${CREATE_ENDPOINT}" \
                 -d "{\"name\": \"${project_name}\", \"private\": false, \"description\": ${desc_raw}}" > /dev/null
         fi
 
