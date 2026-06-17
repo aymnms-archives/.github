@@ -26,6 +26,7 @@ prompt() {
     local label="$1"
     local hint="${2:-}"
     local secret="${3:-false}"
+    local value
 
     if [[ -n "$hint" ]]; then
         echo -e "  ${YELLOW}${label}${NC} ${DIM}(${hint})${NC}" >&2
@@ -39,6 +40,10 @@ prompt() {
     else
         read -rp "  > " value
     fi
+
+    # Strip surrounding single or double quotes typed by the user
+    value="${value#\'}" ; value="${value%\'}"
+    value="${value#\"}" ; value="${value%\"}"
 
     echo "$value"
 }
@@ -68,9 +73,9 @@ setup() {
     ssh_dir="${ssh_dir/#\~/$HOME}"
 
     cat > "$ENV_PATH" <<EOF
-GH_TOKEN=$gh_token
-SOURCE_GITHUB_USER=$source_user
-SSH_DIR=$ssh_dir
+GH_TOKEN="$gh_token"
+SOURCE_GITHUB_USER="$source_user"
+SSH_DIR="$ssh_dir"
 EOF
 
     echo ""
