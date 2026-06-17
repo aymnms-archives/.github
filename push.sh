@@ -17,10 +17,10 @@ do
     echo -e "${BLUE}push.sh > start $project_name${NC}"
 
     if (
-        echo -e "${DARK_GRAY}Cloning ${SOURCE_USER}/${project_name}...${NC}"
-        git clone "https://oauth2:${GH_TOKEN}@github.com/${SOURCE_USER}/${project_name}.git" "${project_name}"
+        echo -e "${DARK_GRAY}Cloning ${SOURCE_USER}/${project_name} (mirror)...${NC}"
+        git clone --mirror "https://oauth2:${GH_TOKEN}@github.com/${SOURCE_USER}/${project_name}.git" "${project_name}.git"
 
-        cd "$project_name"
+        cd "${project_name}.git"
 
         status=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
@@ -37,18 +37,14 @@ do
                 -d "{\"name\": \"${project_name}\", \"private\": false}" > /dev/null
         fi
 
-        git remote remove origin
-        git remote add origin "git@github.com:${DEST_ORG}/${project_name}.git"
-
-        current_branch=$(git symbolic-ref --short HEAD)
-        echo -e "${DARK_GRAY}Pushing branch: $current_branch${NC}"
-        git push -u origin "$current_branch"
+        echo -e "${DARK_GRAY}Pushing all branches and tags...${NC}"
+        git push --mirror "git@github.com:${DEST_ORG}/${project_name}.git"
     ); then
         echo -e "${GREEN}push.sh > $project_name pushed to ${DEST_ORG}${NC}"
     else
         echo -e "${RED}push.sh > $project_name failed, skipping${NC}"
     fi
 
-    rm -rf "$project_name" 2>/dev/null || true
+    rm -rf "${project_name}.git" 2>/dev/null || true
     echo -e "${BLUE}push.sh > $project_name local folder removed${NC}"
 done
