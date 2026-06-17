@@ -54,16 +54,9 @@ setup() {
         "scopes requis : repo, delete_repo" \
         "true")
 
-    projects_dir=$(prompt \
-        "Chemin absolu vers le dossier contenant les projets à pousser" \
-        "ex: /Users/toi/projets")
-
-    # Expand ~ manuellement car read ne le fait pas
-    projects_dir="${projects_dir/#\~/$HOME}"
-
-    if [[ ! -d "$projects_dir" ]]; then
-        echo -e "  ${RED}Avertissement : ce dossier n'existe pas encore.${NC}"
-    fi
+    source_user=$(prompt \
+        "Nom d'utilisateur GitHub source" \
+        "compte depuis lequel cloner les repos, ex: aymnms")
 
     ssh_input=$(prompt \
         "Chemin vers vos clés SSH" \
@@ -74,7 +67,7 @@ setup() {
 
     cat > "$ENV_PATH" <<EOF
 GH_TOKEN=$gh_token
-PROJECTS_DIR=$projects_dir
+SOURCE_GITHUB_USER=$source_user
 SSH_DIR=$ssh_dir
 EOF
 

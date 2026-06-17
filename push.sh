@@ -1,14 +1,21 @@
 #!/bin/bash
 
+set -euo pipefail
+
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 DARK_GRAY='\033[1;30m'
 NC='\033[0m'
 
+SOURCE_USER="${SOURCE_GITHUB_USER:-aymnms}"
+
 for project_name in "$@"
 do
-    echo -e "${BLUE}push.sh > start $project_name${DARK_GRAY}"
+    echo -e "${BLUE}push.sh > start $project_name${NC}"
+
+    echo -e "${DARK_GRAY}Cloning ${SOURCE_USER}/${project_name}...${NC}"
+    gh repo clone "${SOURCE_USER}/${project_name}" "${project_name}"
 
     cd "$project_name" || { echo -e "${RED}push.sh > Failed to enter $project_name${NC}"; continue; }
 
