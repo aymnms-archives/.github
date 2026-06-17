@@ -1,0 +1,8 @@
+services:
+  push:
+    build: .
+    volumes:
+      - ${PROJECTS_DIR}:/workspace
+      - ${SSH_DIR:-~/.ssh}:/root/.ssh:ro
+    environment:
+      - GH_TOKEN=${GH_TOKEN}
