@@ -19,8 +19,12 @@ do
 
     cd "$project_name" || { echo -e "${RED}push.sh > Failed to enter $project_name${NC}"; continue; }
 
-    echo -e "${DARK_GRAY}Creating aymnms-archives/${project_name}...${NC}"
-    gh repo create aymnms-archives/"$project_name" --public
+    if gh repo view "aymnms-archives/${project_name}" &>/dev/null; then
+        echo -e "${DARK_GRAY}aymnms-archives/${project_name} already exists, skipping creation${NC}"
+    else
+        echo -e "${DARK_GRAY}Creating aymnms-archives/${project_name}...${NC}"
+        gh repo create aymnms-archives/"$project_name" --public
+    fi
 
     git remote remove origin
     git remote add origin git@github.com:aymnms-archives/"$project_name".git
