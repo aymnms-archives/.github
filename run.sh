@@ -52,10 +52,24 @@ setup() {
     echo -e "${DIM}Les paramètres seront sauvegardés dans ${ENV_FILE}.${NC}"
     echo ""
 
-    gh_token=$(prompt \
-        "GitHub Personal Access Token" \
-        "scope requis : repo" \
-        "true")
+    while true; do
+        gh_token=$(prompt \
+            "GitHub Personal Access Token" \
+            "scope requis : repo" \
+            "true")
+
+        echo -e "  ${DIM}Validation du token...${NC}"
+        token_status=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${gh_token}" \
+            "https://api.github.com/user")
+
+        if [[ "$token_status" == "200" ]]; then
+            echo -e "  ${GREEN}Token valide.${NC}"
+            break
+        else
+            echo -e "  ${RED}Token invalide ou expiré (HTTP ${token_status}). Réessaie.${NC}"
+        fi
+    done
 
     default_user=$(git config --global user.name 2>/dev/null || true)
     source_input=$(prompt \
