@@ -46,6 +46,14 @@ do
             | grep -o '"names":\[[^]]*\]' | sed 's/"names"://')
         [ -z "$topics_raw" ] && topics_raw="[]"
 
+        # Determine visibility
+        case "${REPO_VISIBILITY:-mirror}" in
+            private) private_val="true" ;;
+            public)  private_val="false" ;;
+            *)       private_val=$(echo "$repo_info" | grep '"private"' | head -1 | sed 's/.*"private": *//' | sed 's/,.*//' | tr -d ' \r') ;;
+        esac
+        [ -z "$private_val" ] && private_val="false"
+
         status=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "${API}/repos/${DEST_ORG}/${project_name}")
@@ -56,14 +64,14 @@ do
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${API}/repos/${DEST_ORG}/${project_name}" \
-                -d "{\"description\": ${desc_raw}}" > /dev/null
+                -d "{\"description\": ${desc_raw}, \"private\": ${private_val}}" > /dev/null
         else
             echo -e "${DARK_GRAY}Creating ${DEST_ORG}/${project_name}...${NC}"
             curl -s -X POST \
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${CREATE_ENDPOINT}" \
-                -d "{\"name\": \"${project_name}\", \"private\": false, \"description\": ${desc_raw}}" > /dev/null
+                -d "{\"name\": \"${project_name}\", \"private\": ${private_val}, \"description\": ${desc_raw}}" > /dev/null
         fi
 
         echo -e "${DARK_GRAY}Setting topics...${NC}"

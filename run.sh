@@ -67,10 +67,16 @@ setup() {
         "Organisation ou compte GitHub de destination" \
         "où archiver les repos")
 
+    visibility=$(prompt \
+        "Visibilité des repos archivés" \
+        "public / private / mirror (copie la visibilité du repo source)")
+    visibility="${visibility:-mirror}"
+
     cat > "$ENV_PATH" <<EOF
 GH_TOKEN="$gh_token"
 SOURCE_GITHUB_USER="$source_user"
 DEST_GITHUB_ORG="$dest_org"
+REPO_VISIBILITY="$visibility"
 EOF
 
     echo ""
