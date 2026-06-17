@@ -54,9 +54,11 @@ setup() {
         "scopes requis : repo, delete_repo" \
         "true")
 
-    source_user=$(prompt \
+    default_user=$(git config --global user.name 2>/dev/null || true)
+    source_input=$(prompt \
         "Nom d'utilisateur GitHub source" \
-        "compte depuis lequel cloner les repos, ex: aymnms")
+        "laisser vide pour ${default_user:-votre user git local}")
+    source_user="${source_input:-$default_user}"
 
     ssh_input=$(prompt \
         "Chemin vers vos clés SSH" \
