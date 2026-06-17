@@ -25,16 +25,15 @@ do
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "${API}/repos/${SOURCE_USER}/${project_name}")
 
-        create_body=$(echo "$repo_info" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(json.dumps({'name': d['name'], 'private': False, 'description': d.get('description') or ''}))
-")
-        topics_body=$(echo "$repo_info" | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(json.dumps({'names': d.get('topics') or []}))
-")
+        # Extract raw JSON values to embed directly in payloads
+        desc_raw=$(echo "$repo_info" | grep '"description"' | sed 's/.*"description": *//' | sed 's/,$//' | tr -d '\r')
+        [ -z "$desc_raw" ] && desc_raw="null"
+
+        topics_raw=$(curl -s \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "${API}/repos/${SOURCE_USER}/${project_name}/topics" \
+            | grep -o '"names":\[[^]]*\]' | sed 's/"names"://')
+        [ -z "$topics_raw" ] && topics_raw="[]"
 
         status=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
@@ -46,14 +45,14 @@ print(json.dumps({'names': d.get('topics') or []}))
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${API}/repos/${DEST_ORG}/${project_name}" \
-                -d "{\"description\": $(echo "$repo_info" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('description') or ''))")}" > /dev/null
+                -d "{\"description\": ${desc_raw}}" > /dev/null
         else
             echo -e "${DARK_GRAY}Creating ${DEST_ORG}/${project_name}...${NC}"
             curl -s -X POST \
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${API}/orgs/${DEST_ORG}/repos" \
-                -d "$create_body" > /dev/null
+                -d "{\"name\": \"${project_name}\", \"private\": false, \"description\": ${desc_raw}}" > /dev/null
         fi
 
         echo -e "${DARK_GRAY}Setting topics...${NC}"
@@ -61,7 +60,7 @@ print(json.dumps({'names': d.get('topics') or []}))
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
             "${API}/repos/${DEST_ORG}/${project_name}/topics" \
-            -d "$topics_body" > /dev/null
+            -d "{\"names\": ${topics_raw}}" > /dev/null
 
         echo -e "${DARK_GRAY}Pushing all branches and tags...${NC}"
         cd "${project_name}.git"
