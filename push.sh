@@ -20,24 +20,51 @@ do
         echo -e "${DARK_GRAY}Cloning ${SOURCE_USER}/${project_name} (mirror)...${NC}"
         git clone --mirror "https://oauth2:${GH_TOKEN}@github.com/${SOURCE_USER}/${project_name}.git" "${project_name}.git"
 
-        cd "${project_name}.git"
+        echo -e "${DARK_GRAY}Fetching metadata...${NC}"
+        repo_info=$(curl -s \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "${API}/repos/${SOURCE_USER}/${project_name}")
+
+        create_body=$(echo "$repo_info" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(json.dumps({'name': d['name'], 'private': False, 'description': d.get('description') or ''}))
+")
+        topics_body=$(echo "$repo_info" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(json.dumps({'names': d.get('topics') or []}))
+")
 
         status=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "${API}/repos/${DEST_ORG}/${project_name}")
 
         if [[ "$status" == "200" ]]; then
-            echo -e "${DARK_GRAY}${DEST_ORG}/${project_name} already exists, skipping creation${NC}"
+            echo -e "${DARK_GRAY}${DEST_ORG}/${project_name} already exists, updating metadata...${NC}"
+            curl -s -X PATCH \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Content-Type: application/json" \
+                "${API}/repos/${DEST_ORG}/${project_name}" \
+                -d "{\"description\": $(echo "$repo_info" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('description') or ''))")}" > /dev/null
         else
             echo -e "${DARK_GRAY}Creating ${DEST_ORG}/${project_name}...${NC}"
             curl -s -X POST \
                 -H "Authorization: Bearer ${GH_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${API}/orgs/${DEST_ORG}/repos" \
-                -d "{\"name\": \"${project_name}\", \"private\": false}" > /dev/null
+                -d "$create_body" > /dev/null
         fi
 
+        echo -e "${DARK_GRAY}Setting topics...${NC}"
+        curl -s -X PUT \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "${API}/repos/${DEST_ORG}/${project_name}/topics" \
+            -d "$topics_body" > /dev/null
+
         echo -e "${DARK_GRAY}Pushing all branches and tags...${NC}"
+        cd "${project_name}.git"
         git push --mirror "git@github.com:${DEST_ORG}/${project_name}.git"
     ); then
         echo -e "${GREEN}push.sh > $project_name pushed to ${DEST_ORG}${NC}"
