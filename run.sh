@@ -28,14 +28,14 @@ prompt() {
     local secret="${3:-false}"
 
     if [[ -n "$hint" ]]; then
-        echo -e "  ${YELLOW}${label}${NC} ${DIM}(${hint})${NC}"
+        echo -e "  ${YELLOW}${label}${NC} ${DIM}(${hint})${NC}" >&2
     else
-        echo -e "  ${YELLOW}${label}${NC}"
+        echo -e "  ${YELLOW}${label}${NC}" >&2
     fi
 
     if [[ "$secret" == "true" ]]; then
         read -rsp "  > " value
-        echo ""
+        echo "" >&2
     else
         read -rp "  > " value
     fi
