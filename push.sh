@@ -36,14 +36,17 @@ do
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "${API}/repos/${SOURCE_USER}/${project_name}")
 
-        # Extract raw JSON values to embed directly in payloads
-        desc_raw=$(echo "$repo_info" | grep '"description"' | sed 's/.*"description": *//' | sed 's/,$//' | tr -d '\r')
+        # Extract raw JSON values to embed directly in payloads.
+        # head -1 guards against duplicate keys in the response.
+        desc_raw=$(echo "$repo_info" | grep '"description"' | head -1 | sed 's/.*"description": *//' | sed 's/,$//' | tr -d '\r')
         [ -z "$desc_raw" ] && desc_raw="null"
 
+        # tr -d '\n ' collapses multi-line pretty-printed JSON to one line
+        # before grep, ensuring the match works on both macOS and Linux.
         topics_raw=$(curl -s \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "${API}/repos/${SOURCE_USER}/${project_name}/topics" \
-            | grep -o '"names":\[[^]]*\]' | sed 's/"names"://')
+            | tr -d '\n ' | grep -o '"names":\[[^]]*\]' | sed 's/"names"://')
         [ -z "$topics_raw" ] && topics_raw="[]"
 
         # Determine visibility
